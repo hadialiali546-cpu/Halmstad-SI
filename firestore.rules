@@ -1,0 +1,92 @@
+rules_version = '2';
+// Halmstad SI — pilot security rules.
+// Roles live in profiles/{uid}.role and are assigned by SI supervisors.
+// The first supervisor is bootstrapped from config/roles (written by the deploy script).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function profilePath() { return /databases/$(database)/documents/profiles/$(request.auth.uid); }
+    function hasProfile() { return signedIn() && exists(profilePath()); }
+    function profile() { return get(profilePath()).data; }
+    function role() { return profile().role; }
+    function approved() { return hasProfile() && role() in ['student', 'leader', 'coach', 'supervisor']; }
+    function isSup() { return approved() && role() == 'supervisor'; }
+    function isStaff() { return approved() && role() in ['leader', 'coach', 'supervisor']; }
+    function me() { return profile().userId; }
+    function changes() { return request.resource.data.diff(resource.data).affectedKeys(); }
+    function bootstrapSupervisor() {
+      return signedIn() && request.auth.token.email_verified == true
+        && exists(/databases/$(database)/documents/config/roles)
+        && request.auth.token.email.lower() in get(/databases/$(database)/documents/config/roles).data.supervisors;
+    }
+
+    // ---- accounts ----
+    match /profiles/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isStaff());
+      allow create: if signedIn() && request.auth.uid == uid && (
+        (request.resource.data.role == 'pending' && request.resource.data.allRoles == false)
+        || (bootstrapSupervisor() && request.resource.data.role == 'supervisor'));
+      allow update: if isSup()
+        || (signedIn() && request.auth.uid == uid && changes().hasOnly(['name']));
+      allow delete: if isSup();
+    }
+    match /config/{docId} {
+      allow read: if signedIn();
+      allow write: if false; // owner-only via console / deploy script
+    }
+    match /meta/{docId} {
+      allow read: if approved();
+      allow create, update: if isStaff();
+      allow delete: if isSup();
+    }
+
+    // ---- reference data: supervisors only ----
+    match /{col}/{id} {
+      allow read: if approved() && col in [
+        'users', 'courses', 'courseAssignments', 'coachAssignments', 'enrollments', 'sessions', 'attendance',
+        'topics', 'timePrefs', 'observations', 'eduActivities', 'surveys', 'workActivities', 'reports',
+        'notifications', 'calendarConnections', 'feedback', 'substituteRequests', 'grades', 'evaluations'];
+      allow write: if isSup() && col in [
+        'users', 'courses', 'courseAssignments', 'coachAssignments', 'enrollments', 'sessions', 'attendance',
+        'topics', 'timePrefs', 'observations', 'eduActivities', 'surveys', 'workActivities', 'reports',
+        'notifications', 'calendarConnections', 'feedback', 'substituteRequests', 'grades', 'evaluations'];
+      // SI leaders and coaches run day-to-day operations
+      allow write: if isStaff() && col in [
+        'sessions', 'attendance', 'topics', 'observations', 'eduActivities', 'surveys', 'workActivities',
+        'reports', 'substituteRequests', 'notifications'];
+    }
+
+    // ---- what students may change ----
+    match /sessions/{id} {
+      // QR check-in: students may only touch the check-in list
+      allow update: if approved() && changes().hasOnly(['checkin']);
+    }
+    match /topics/{id} {
+      allow create: if approved() && request.resource.data.studentId == me();
+      allow update: if approved() && changes().hasOnly(['voterIds']);
+    }
+    match /notifications/{id} {
+      allow create: if approved();
+    }
+    match /timePrefs/{id} {
+      allow create, update: if approved() && request.resource.data.studentId == me();
+      allow delete: if approved() && resource.data.studentId == me();
+    }
+    match /feedback/{id} {
+      allow create: if approved() && request.resource.data.studentId == me()
+        && request.resource.data.rating is int && request.resource.data.rating >= 1 && request.resource.data.rating <= 5;
+    }
+    match /grades/{id} {
+      allow create, update: if approved() && request.resource.data.studentId == me()
+        && request.resource.data.grade in ['U', '3', '4', '5'] && request.resource.data.consent == true;
+    }
+    match /evaluations/{id} {
+      allow create: if approved() && request.resource.data.studentId == me();
+    }
+    match /calendarConnections/{id} {
+      allow create, update: if approved() && request.resource.data.userId == me();
+      allow delete: if approved() && resource.data.userId == me();
+    }
+  }
+}
