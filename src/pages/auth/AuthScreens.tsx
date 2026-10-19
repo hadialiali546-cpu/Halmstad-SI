@@ -2,7 +2,7 @@ import { useState, type FormEvent, type ReactNode } from 'react';
 import { Loader2, LogOut, MailCheck, Hourglass, Database, ShieldCheck, Laptop } from 'lucide-react';
 import { authErrorText, useIdentity } from '@/backend/identity';
 import { chooseOffline } from '@/backend/firebase';
-import { Logo } from '@/components/layout/Logo';
+import logoUrl from '@/assets/brand/si-logo-full.webp';
 import { Button } from '@/components/ui/button';
 import { Field, Input } from '@/components/ui/form';
 import { Tabs } from '@/components/ui/misc';
@@ -11,13 +11,17 @@ import { useT } from '@/lib/i18n';
 function Frame({ children }: { children: ReactNode }) {
   const { t } = useT();
   return (
-    <div className="flex min-h-screen flex-col bg-navy">
-      <div className="pointer-events-none fixed -right-24 -top-24 size-[420px] rounded-full bg-teal/20 blur-3xl" />
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-b from-white via-[#F3F8FD] to-[#E6F1FB]">
+      <div className="pointer-events-none absolute -right-32 -top-32 size-[460px] rounded-full bg-[#5BB8F2]/15 blur-3xl" aria-hidden />
+      <div className="pointer-events-none absolute -bottom-40 -left-32 size-[420px] rounded-full bg-[#0B3D73]/10 blur-3xl" aria-hidden />
       <div className="relative mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-4 py-10">
-        <div className="mb-6 flex items-center justify-between"><Logo light /><span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-teal-200">Pilot</span></div>
-        <p className="mb-6 text-teal-200">{t('One Platform. Less Administration. More Learning.')}</p>
-        <div className="rounded-2xl bg-white p-6 shadow-xl">{children}</div>
-        <p className="mt-6 text-center text-xs text-white/50">Halmstad SI pilot · data stored in Firebase (EU, Stockholm). Not an official Halmstad University system.</p>
+        <img src={logoUrl} alt="SI Halmstad University, Supplemental Instruction" className="mx-auto w-48 sm:w-64" />
+        <div className="mb-6 mt-5 flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5">
+          <p className="text-center text-sm font-medium text-[#0B3D73]">{t('One Platform. Less Administration. More Learning.')}</p>
+          <span className="rounded-full bg-[#0B3D73]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#0B3D73]">Pilot</span>
+        </div>
+        <div className="rounded-2xl border border-[#D6E6F5] bg-white p-6 shadow-xl shadow-[#0B3D73]/5">{children}</div>
+        <p className="mt-6 text-center text-xs text-slate-500">Halmstad SI pilot · data stored in Firebase (EU, Stockholm).</p>
       </div>
     </div>
   );
