@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, BookOpen, CalendarDays, MessageSquarePlus, Clock, Bell, ClipboardCheck, ListChecks, FileText, Users, Eye,
-  GraduationCap, Award, ClipboardList, BarChart3, UserCog, FileCheck2, FileSpreadsheet, Wallet, type LucideIcon, UserRound, Presentation, Compass, ShieldCheck,
+  GraduationCap, Award, ClipboardList, BarChart3, UserCog, FileCheck2, FileSpreadsheet, Wallet, type LucideIcon, UserRound, Presentation, Compass, ShieldCheck, Lightbulb,
 } from 'lucide-react';
 import type { Role } from '@/data/types';
 import { PERSONAS } from '@/data/seed';
@@ -61,6 +61,7 @@ export const ROLES: Record<Role, RoleConfig> = {
       { to: '/supervisor/reports', label: 'Reports & Approvals', icon: FileCheck2 },
       { to: '/supervisor/import-export', label: 'Import & Export', icon: FileSpreadsheet },
       { to: '/supervisor/payroll', label: 'Payroll & Primula Export', icon: Wallet },
+      { to: '/supervisor/feedback', label: 'Feedback inbox', icon: Lightbulb },
       { to: '/supervisor/notifications', label: 'Notifications', icon: Bell },
     ],
   },

@@ -14,6 +14,7 @@ import { Avatar } from '@/components/ui/misc';
 import { useToast } from '@/components/ui/toast';
 import { Logo } from './Logo';
 import { CalendarConnect } from '@/components/shared/CalendarConnect';
+import { FeatureRequestButton } from '@/components/shared/FeatureRequest';
 import { ROLES, ROLE_ORDER } from './roles';
 import type { Role } from '@/data/types';
 
@@ -76,6 +77,7 @@ function Sidebar({ role, onNavigate }: { role: Role; onNavigate?: () => void }) 
         ))}
       </nav>
       <div className="space-y-1 border-t border-white/10 p-3">
+        <FeatureRequestButton role={role} />
         <NavLink to="/guide" onClick={onNavigate} className={({ isActive }) => cn('flex items-center gap-3 rounded-lg px-3 py-2 text-sm', isActive ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white')}>
           <BookOpenCheck className="size-[18px]" /> {t('Demo Guide')}
         </NavLink>

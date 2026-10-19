@@ -88,5 +88,22 @@ service cloud.firestore {
       allow create, update: if approved() && request.resource.data.userId == me();
       allow delete: if approved() && resource.data.userId == me();
     }
+
+    // ---- feature requests & feedback (sidebar button) ----
+    // Anyone signed in may send one (validated); only supervisors can read and change status.
+    match /featureRequests/{id} {
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['id', 'ref', 'kind', 'title', 'details', 'area', 'path', 'role', 'priority', 'email', 'name', 'uid', 'status', 'createdAt'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == 'new'
+        && request.resource.data.kind in ['feature', 'improvement', 'problem', 'feedback']
+        && request.resource.data.priority in ['nice', 'important', 'blocking']
+        && request.resource.data.title is string && request.resource.data.title.size() >= 8 && request.resource.data.title.size() <= 120
+        && request.resource.data.details is string && request.resource.data.details.size() >= 20 && request.resource.data.details.size() <= 2000
+        && request.resource.data.email is string && request.resource.data.email.size() <= 200;
+      allow read: if isSup();
+      allow update: if isSup() && changes().hasOnly(['status']);
+      allow delete: if isSup();
+    }
   }
 }

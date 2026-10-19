@@ -36,6 +36,7 @@ import { SupTeam } from '@/pages/supervisor/SupTeam';
 import { SupReports } from '@/pages/supervisor/SupReports';
 import { SupImportExport } from '@/pages/supervisor/SupImportExport';
 import { SupPayroll } from '@/pages/supervisor/SupPayroll';
+import { SupFeedback } from '@/pages/supervisor/SupFeedback';
 
 // HashRouter keeps the app working from any static host or file server without rewrites.
 export function App() {
@@ -115,6 +116,7 @@ function AppRoutes() {
                 <Route path="/supervisor/reports" element={<SupReports />} />
                 <Route path="/supervisor/import-export" element={<SupImportExport />} />
                 <Route path="/supervisor/payroll" element={<SupPayroll />} />
+                <Route path="/supervisor/feedback" element={<SupFeedback />} />
                 <Route path="/:role/notifications" element={<NotificationsPage />} />
                 <Route path="/:role/results" element={<ResultsPage />} />
               </Route>
