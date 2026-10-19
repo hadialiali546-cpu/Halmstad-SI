@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { -webkit-font-smoothing: antialiased; }
+  body { @apply bg-canvas text-slate-800 font-sans; }
+  :focus-visible { outline-color: #008D95; }
+}
+.recharts-cartesian-axis-tick-value { font-size: 12px; fill: #64748B; }
+.recharts-legend-item-text { color: #334155 !important; font-size: 12px; }
